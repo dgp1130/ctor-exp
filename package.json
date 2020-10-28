@@ -1,0 +1,20 @@
+{
+  "name": "ctor-exp",
+  "version": "0.0.0",
+  "description": "Experimental implementation of the constructor concepts discussed in https://blog.dwac.dev/posts/constructor/.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dgp1130/ctor-exp.git"
+  },
+  "keywords": [
+    "constructor",
+    "experiment",
+    "language"
+  ],
+  "author": "Doug Parker",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dgp1130/ctor-exp/issues"
+  },
+  "homepage": "https://github.com/dgp1130/ctor-exp#readme"
+}
