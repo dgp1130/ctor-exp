@@ -2,6 +2,11 @@
   "name": "ctor-exp",
   "version": "0.0.0",
   "description": "Experimental implementation of the constructor concepts discussed in https://blog.dwac.dev/posts/constructor/.",
+  "main": "dist/public.js",
+  "types": "dist/public.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/dgp1130/ctor-exp.git"
@@ -16,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/dgp1130/ctor-exp/issues"
   },
-  "homepage": "https://github.com/dgp1130/ctor-exp#readme"
+  "homepage": "https://github.com/dgp1130/ctor-exp#readme",
+  "devDependencies": {
+    "typescript": "^4.0.5"
+  }
 }
