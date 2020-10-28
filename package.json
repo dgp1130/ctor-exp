@@ -5,7 +5,9 @@
   "main": "dist/public.js",
   "types": "dist/public.d.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc -p tsconfig-lib.json",
+    "build:test": "tsc -p tsconfig-test.json",
+    "test": "npm run -s build:test && jasmine --config=jasmine.json"
   },
   "repository": {
     "type": "git",
@@ -23,6 +25,8 @@
   },
   "homepage": "https://github.com/dgp1130/ctor-exp#readme",
   "devDependencies": {
+    "@types/jasmine": "^3.6.0",
+    "jasmine": "^3.6.2",
     "typescript": "^4.0.5"
   }
 }
