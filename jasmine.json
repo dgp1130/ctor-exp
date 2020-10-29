@@ -4,5 +4,6 @@
     "**/*_test.js"
   ],
   "stopSpecOnExpectationFailure": false,
+  "failSpecWithNoExpectations": true,
   "random": true
 }
