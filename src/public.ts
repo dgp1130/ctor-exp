@@ -1,3 +1,1 @@
-export function foo(bar: string): string {
-    return bar;
-}
+export * from './ctor';
