@@ -2,8 +2,8 @@
   "name": "ctor-exp",
   "version": "0.0.0",
   "description": "Experimental implementation of the constructor concepts discussed in https://blog.dwac.dev/posts/constructor/.",
-  "main": "dist/public.js",
-  "types": "dist/public.d.ts",
+  "main": "dist/ctor.js",
+  "types": "dist/ctor.d.ts",
   "scripts": {
     "build": "tsc -p tsconfig-lib.json",
     "build:test": "tsc -p tsconfig-test.json",

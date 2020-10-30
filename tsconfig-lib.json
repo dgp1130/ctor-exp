@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig-base.json",
-  "files": [ "src/public.ts" ],
+  "files": [ "src/ctor.ts" ],
   "compilerOptions": {
     "rootDir": "src/",
     "outDir": "dist/",
