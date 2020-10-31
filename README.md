@@ -158,8 +158,10 @@ type systems, others are not.
     necessary in this implementation.
 *   Subclass constructors **must** pass through their first argument to the
     superclass constructor (don't forget to spread `...superParams`).
-*   Do not call `new Foo()` directly, **only** use `ctor.new()` and `from()` to
-    construct classes.
+*   Do not call `new Foo()` directly on a subclass. It is reasonable to use
+    `new` on a class which does not extend another parent class, however
+    subclasses must always be constructed with
+    `from(parentCtor).new(/* ... */)`.
 *   `ctor.new(Foo, /* ... */)` should only be used within `Foo` itself (via
     methods on the class).
     *   Invoking `ctor.new()` is an implementation detail of the class being
