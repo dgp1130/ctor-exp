@@ -131,6 +131,8 @@ only assigns class fields combined with composeable factories that perform the
 real business logic in a form which cleanly supports inheritance allows an
 easier implementation of many common problems in computer science.
 
+## Examples
+
 Check out some examples which take simple use cases and show how they can be
 surprisingly tricky using traditional constructors. Then look at the `ctor<T>`
 implementation to see how much simpler these solutions can be.
