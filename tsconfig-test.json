@@ -1,9 +1,11 @@
 {
   "extends": "./tsconfig-base.json",
-  "include": ["src/**/*_test.ts"],
+  "include": [ "src/**/*_test.ts" ],
   "compilerOptions": {
     "rootDir": "src/",
     "outDir": "test/",
-    "types": [ "@types/jasmine" ]
+    "types": [ "@types/jasmine" ],
+    "lib": [ "ES2015", "DOM" ],
+    "target": "ES5",
   }
 }  
