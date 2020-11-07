@@ -207,6 +207,42 @@ class Extended<Parent> {
     ): ctor<InstanceType<Child>> {
         return this.parentCtor.extend(child, ...params);
     }
+
+    /**
+     * Creates a `ctor<Mixin>` by using thte constructor parameters provided and
+     * extending the `ctor<Parent>`. This is identical to `new()` in
+     * implementation however it does not have any type constraints on the
+     * parent because mixins can mix with anything.
+     * 
+     * Unfortunately, there is no good way to ensure that
+     * `from(parentCtor).mixin(Mixin)` is valid for a type constrained mixin.
+     * The best way is to define `parentCtor` generically as `ctor<Parent>`
+     * where `Parent extends ${baseClassOfMixin}`. Doing so will prevent
+     * consumers of a mixin from passing in a bad superclass into the mixin
+     * factory, but there is no way to guarantee that the mixin factory's
+     * `parentCtor` constraint is accurate. Essentially:
+     * 
+     * ```typescript
+     * interface Foo {
+     *     foo(): string;
+     * }
+     * 
+     * class Mixin extends Implementation<Foo>() {
+     *     // Don't forgot to include `extends Foo`, nothing will stop you if
+     *     // you forget, and then callers might not give you a `ctor<Foo>`!
+     *     public static from<Parent extends Foo>(parentCtor: ctor<Parent>):
+     *             ctor<Parent & Mixin> {
+     *         return from(parentCtor).new(Mixin);
+     *     }
+     * }
+     * ```
+     */
+    public mixin<MixinClass extends ConstructorOf<unknown>>(
+        mixin: MixinClass,
+        ...params: ConstructorParameters<typeof mixin>
+    ): ctor<InstanceType<MixinClass> & Parent> {
+        return this.parentCtor.extend(mixin as any, ...params);
+    }
 }
 
 /**

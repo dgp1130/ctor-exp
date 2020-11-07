@@ -24,7 +24,12 @@ symbols exported are `ctor<T>`, and `from()` (described below).
 npm install ctor-exp
 ```
 
-## Basic Usage
+## Usage
+
+This explains with very rough examples how to use `ctor<T>` as a constructor
+engine.
+
+### Basic Construction
 
 Classes should be defined with public constructors that follow the format
 (examples are TypeScript, JavaScript can be used by simply dropping the types):
@@ -76,9 +81,13 @@ class Foo {
 ```
 
 Using this system we have simple, boilerplate constructors and all the
-initialization logic is performed in separate factories. However, it is easy
-follow this pattern in existing programming languages if a developer is so
-inclined. The tricky part is inheritance, so let's extend something!
+initialization logic is performed in separate factories.
+
+### Inheritance
+
+What has been shown so far looks like a lot of boilerplate for simple
+constructor patterns that could be easily followed in any existing programming
+language. However, the tricky part is inheritance, so let's extend something!
 
 ```typescript
 import { ctor, from, Implementation } from 'ctor-exp';
@@ -92,7 +101,7 @@ class Foo {
     }
 
     // Factory for creating a `ctor<Foo>`, extendable by subclasses.
-    public static createFoo(foo: string): ctor<Foo> {
+    public static from(foo: string): ctor<Foo> {
         const oof = foo.split('').reverse().join(''); // Do some work...
 
         // Return the `ctor<Foo>`, just don't `.construct()` it yet.
@@ -113,10 +122,10 @@ class Bar extends Implementation<Foo>() {
         this.bar = bar;
     }
 
-    // Factory for creating a `Bar`, composing `Foo.createFoo()`.
-    public static createBar(foo: string, bar: string): Bar {
+    // Factory for creating a `Bar`, composing `Foo.from()`.
+    public static from(foo: string, bar: string): Bar {
         // Get a `ctor<Foo>` by calling `Foo`'s factory.
-        const fooCtor = Foo.createFoo(foo);
+        const fooCtor = Foo.from(foo);
 
         // Constrct `Bar` by extending the return `ctor<Foo>`.
         return from(fooCtor).new(Bar, { bar }).construct();
@@ -133,6 +142,142 @@ You should *never* extend a class directly. Always extend
 If you ever want to call a superclass method, rather than using
 `super.method()`, you should use `this._super.method()`. This is just a quirk of
 how the library is implemented on top of the existing JavaScript class paradigm.
+
+### Mixins
+
+Because all classes extend `Implementation<SomeSuperClass>()`, it means that
+they only have a type reference to their superclass, rather than a value
+reference. This is important because it means that all classes do not actually
+have direct knowledge of their superclasses, only knowledge of the interface of
+the superclass. This is particularly useful for
+[mixins](https://en.wikipedia.org/wiki/Mixin).
+
+```typescript
+import { ctor, from, Implementation } from 'ctor-exp';
+
+// Declare a mixin which extends any object.
+class Mixin extends Implementation() {
+    private readonly data: string;
+
+    // Another boilerplate, uninteresting constructor.
+    // Also need an empty `super()` call for mixins.
+    public constructor({ data }: { data: string }) {
+        super();
+        this.data = data;
+    }
+
+    public mixin(): string {
+        return this.data;
+    }
+
+    // Accept a parent `ctor` object of any type and extend it with `from()`.
+    // Can provide any constructor arguments to mixin and then return an
+    // intersection of the parent type and `Mixin`.
+    public static from<MixinParent>(parent: ctor<MixinParent>, data: string):
+            ctor<Mixin & MixinParent> {
+        // Extend normally, except with the `.mixin()` function to allow any
+        // superclass type!
+        return from(parent).mixin(Mixin, { data });
+    }
+}
+
+// Parent class is unrelated to `Mixin` and has no knowledge of it.
+class Parent {
+    public parent(): string {
+        return 'parent';
+    }
+
+    public static from(): ctor<Parent> {
+        return ctor.new(Parent);
+    }
+}
+
+// Child extends `Parent` with `Mixin` included.
+class Child extends Implementation<Mixin & Parent>() {
+    public child(): string {
+        return this.parent() + this.mixin();
+    }
+
+    public static from(mixinData: string): Child {
+        // Get a `ctor<Parent>` as normal.
+        const parentCtor = Parent.from();
+
+        // Extend with `Mixin`.
+        const mixinCtor = Mixin.from(parentCtor, mixinData);
+
+        // Further extend with `Child` and construct.
+        return from(mixinCtor).new(Child).construct();
+    }
+}
+```
+
+This allows mixins to be defined without knowledge of a superclass and to be
+extended and constructed just like normal inheritance! You can also have type
+constrained mixins, which enforce a particular interface on their superclass.
+
+```typescript
+import { ctor, from, Implementation } from 'ctor-exp';
+
+interface MixinParent {
+    parent(): string;
+}
+
+// Extend an unknown implementation of some interface.
+class Mixin extends Implementation<MixinParent>() {
+    public mixin(): string {
+        return this.parent(); // Parent interface is usable.
+    }
+
+    // Define `parentCtor` as a `ctor<MixinParent>` and mixin normally.
+    public static from<Parent extends MixinParent>(parentCtor: ctor<Parent>):
+            ctor<Parent & Mixin> {
+        return from(parentCtor).mixin(Mixin);
+    }
+}
+
+// A parent class implementing the required interface to support `Mixin`.
+class GoodParent implements MixinParent {
+    public parent(): string {
+        return 'parent';
+    }
+
+    public static from(): ctor<GoodParent> {
+        return ctor.new(GoodParent);
+    }
+}
+
+// A child class which uses a valid superclass `GoodParent` with `Mixin`.
+class GoodChild extends Implementation<GoodParent & Mixin>() {
+    public static from(): GoodChild {
+        const parentCtor = GoodParent.from();
+        // `parentCtor` satisfies `ctor<MixinParent>`
+        const mixinCtor = Mixin.from(parentCtor);
+        return from(mixinCtor).new(GoodChild);
+    }
+}
+
+// A parent class which does **not** implement the required interface to support
+// `Mixin`.
+class BadParent {
+    public static from(): ctor<BadParent> {
+        return ctor.new(BadParent);
+    }
+}
+
+// A child class which uses an invalid superclass `BadParent` with `Mixin`.
+class BadChild extends Implementation<BadParent & Mixin>() {
+    public static from(): BadChild {
+        const parentCtor = BadParent.from();
+        // COMPILE ERROR: `parentCtor` does not satisfy `ctor<MixinParent>`.
+        const mixinCtor = Mixin.from(parentCtor);
+        return from(mixinCtor).new(BadChild);
+    }
+}
+```
+
+These mixins look and act just like traditional classes. There is no need for
+a function which transforms a class definition to include mixin funcitonality
+as is normally necessary in JavaScript.
 
 ## Examples
 
@@ -151,6 +296,7 @@ implementation to see how much simpler these solutions can be.
 *   [Deep cloning objects](./src/clone_test.ts)
 *   [Serialization/deserialization](./src/serialization_test.ts)
 *   [Constructor coupling](./src/coupling_test.ts)
+*   [Mixins](./src/mixin_test.ts)
 
 ## Invariants
 
@@ -170,6 +316,11 @@ type systems, others are not.
     extend a `SuperClass` directly.
 *   When calling a superclass method, you **must** use `this._super.method()`
     and never use `super.method()`, as it won't have the method you are calling.
+*   Mixins with type constraints on their superclass **must** use factories
+    which accept a parent `ctor<T>` which explicitly `extends` the superclass
+    type.
+    *   The library may incorrectly allow superclass implementations which do
+        not satisfy the superclass type if you forget to do this.
 *   Do not call `new Foo()` directly on a subclass. It is reasonable to use
     `new` on a class which does not extend another parent class, however
     subclasses must always be constructed with
