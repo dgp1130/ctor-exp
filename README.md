@@ -297,6 +297,7 @@ implementation to see how much simpler these solutions can be.
 *   [Serialization/deserialization](./src/serialization_test.ts)
 *   [Constructor coupling](./src/coupling_test.ts)
 *   [Mixins](./src/mixin_test.ts)
+*   [An optimized set using multiple superclass implementations](./src/optimized_set_test.ts)
 
 ## Invariants
 
