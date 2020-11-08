@@ -5,7 +5,5 @@
     "rootDir": "src/",
     "outDir": "test/",
     "types": [ "@types/jasmine" ],
-    "lib": [ "ES2015", "DOM" ],
-    "target": "ES5",
   }
 }  

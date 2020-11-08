@@ -76,16 +76,30 @@ export class ctor<T> {
      * construction time in order to provide more flexibility than currently
      * available in standard JavaScript.
      */
-    private constructOn(obj: Record<string, unknown>): Record<string, unknown> {
+    private constructOn(self: Record<string, unknown>):
+            Record<string, unknown> {
         // Invoke parent constructor if this class extends another.
         const parentProto =
-                this.parentCtor?.constructOn(obj) ?? Base.prototype;
+                this.parentCtor?.constructOn(self) ?? Base.prototype;
 
-        // Invoke this class' constructor, assigning its data to `obj`.
-        this.ctor.apply(obj as any, this.params);
+        // Invoke this class' constructor, generating a new object. Then copy
+        // the new properties to `self` as the intended `this` object.
+        // `this.ctor.apply(self)` would be ideal, but real `class` syntax
+        // requires that `new` is used, which means it must create a new object
+        // rather than construct on an existing one.
+        const constructed = new this.ctor(...this.params);
+        for (const [ key, value ] of Object.entries(constructed)) {
+            self[key] = value;
+        }
 
-        // Create a new prototype object by cloning the class' prototype.
-        const proto = { ...this.ctor.prototype };
+        // Create a new prototype object by cloning the class' prototype. In
+        // native class syntax, all prototype properties are marked
+        // non-enumerable and do not appear in `Object.entries()` or a `for-in`.
+        // Instead, we must use `Object.getOwnPropertyNames()`.
+        const proto: Record<string, unknown> = {};
+        for (const prop of Object.getOwnPropertyNames(this.ctor.prototype)) {
+            proto[prop] = this.ctor.prototype[prop];
+        }
 
         // For some reason, the constructor is not propagated via object spread
         // or `Object.assign()`. Do this manually.
