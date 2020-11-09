@@ -101,10 +101,6 @@ export class ctor<T> {
             proto[prop] = this.ctor.prototype[prop];
         }
 
-        // For some reason, the constructor is not propagated via object spread
-        // or `Object.assign()`. Do this manually.
-        proto.constructor = this.ctor.prototype.constructor;
-
         // Provide an implementation of `Symbol.hasInstance` on the class so
         // `instanceof` will work as expected. This should really be done on the
         // class itself just once rather than doing this during construction,
