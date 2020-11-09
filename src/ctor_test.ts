@@ -401,4 +401,45 @@ describe('ctor', () => {
         // @ts-expect-error Should not have `any` index type.
         (() => childB2.doesNotExist);
     });
+
+    it('can extend a subclass of the intended superclass', () => {
+        class Foo {
+            public method(): string {
+                return 'foo';
+            }
+
+            public static from(): ctor<Foo> {
+                return ctor.new(Foo);
+            }
+        }
+        class Bar extends Implementation<Foo>() {
+            public method(): string {
+                return 'bar';
+            }
+
+            public static from(parentCtor: ctor<Foo>): ctor<Bar> {
+                return from(parentCtor).new(Bar);
+            }
+        }
+        class Baz extends Implementation<Foo>() {
+            public static from(parentCtor: ctor<Foo>): ctor<Baz> {
+                return from(parentCtor).new(Baz);
+            }
+        }
+
+        const correctBaz = Baz.from(Foo.from()).construct();
+        expect(correctBaz).toBeInstanceOf(Baz);
+        expect(correctBaz).toBeInstanceOf(Foo);
+        expect(correctBaz).not.toBeInstanceOf(Bar);
+        expect(correctBaz.method()).toBe('foo');
+
+        // Incorrectly extend `Baz` from `Bar`, which technically satisfies the
+        // superclass requirement of `Foo`, even though `Bar` is not really
+        // intended to be extended.
+        const incorrectBaz = Baz.from(Bar.from(Foo.from())).construct();
+        expect(incorrectBaz).toBeInstanceOf(Baz);
+        expect(incorrectBaz).toBeInstanceOf(Bar); // Unexpected.
+        expect(incorrectBaz).toBeInstanceOf(Foo);
+        expect(incorrectBaz.method()).toBe('bar'); // Uses `Bar`'s version.
+    });
 });
