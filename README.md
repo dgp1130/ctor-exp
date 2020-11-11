@@ -298,6 +298,7 @@ implementation to see how much simpler these solutions can be.
 *   [Constructor coupling](./src/coupling_test.ts)
 *   [Mixins](./src/mixin_test.ts)
 *   [An optimized set using multiple superclass implementations](./src/optimized_set_test.ts)
+*   [Framework](./src/framework_test.ts)
 
 ## Invariants
 
