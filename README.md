@@ -1,9 +1,9 @@
 # ctor-exp
 
 An experimental implementation of `ctor<T>`, a new paradigm for constructing
-objects as described [here](https://blog.dwac.dev/posts/constructors/). This is
-implemented as a simple TypeScript library because it's type system is
-~~abusable~~ powerfull enough to provide most of the critical features of
+objects as described in [Construct Better](https://blog.dwac.dev/posts/ctor/).
+This is implemented as a simple TypeScript library because it's type system is
+~~abusable~~ powerful enough to provide most of the critical features of
 `ctor<T>`. Someone smarter than me could probably do better with a custom
 compiler or plugin, but this is good enough for an experimental implementation.
 
