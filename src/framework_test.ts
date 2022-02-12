@@ -83,13 +83,9 @@ describe('frameworks', () => {
             }
         }
 
-        // A registry of objects for the framework to create. Note that we
-        // cannot use a constructor type, because we do not know what
-        // constructor parameters are used by `Component` subclass.
-        const registry = new Map<
-            string,
-            (parent: ctor<Component>) => Component
-        >();
+        // A registry of objects for the framework to create.
+        const registry =
+            new Map<string, (parent: ctor<Component>) => Component>();
         function registerComponent(
             tagName: string,
             createComponent: (parentCtor: ctor<Component>) => Component,
