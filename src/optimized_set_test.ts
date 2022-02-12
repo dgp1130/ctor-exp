@@ -332,7 +332,7 @@ describe('Optimized Set', () => {
             }
 
             public static from(items: number[]): ctor<SparseSet> {
-                return ctor.new(SparseSet, { items }) as ctor<SparseSet>;
+                return ctor.new(SparseSet, { items });
             }
         }
 
@@ -356,7 +356,7 @@ describe('Optimized Set', () => {
                 const map = new Map(
                     items.map((item) => [ item, true ] as const),
                 );
-                return ctor.new(DenseSet, { map }) as ctor<DenseSet>;
+                return ctor.new(DenseSet, { map });
             }
         }
 
@@ -411,7 +411,7 @@ describe('Optimized Set', () => {
             // choose the optimal superclass.
             public static from(items: number[], maxSize: number): MutableSet {
                 const mutableSetCtor = from(createOptimizedSet(items))
-                        .new(MutableSet, { maxSize }) as ctor<MutableSet>;
+                        .new(MutableSet, { maxSize });
                 return mutableSetCtor.construct();
             }
         }
