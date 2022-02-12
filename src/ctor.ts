@@ -160,31 +160,6 @@ export class ctor<T> {
         return new ctor<InstanceType<Clazz>>(undefined, clazz, ...params);
     }
 
-    /**
-     * Creates a new `ctor<T>` for the given abstract class with its parameters.
-     * You should prefer `ctor.new()` for all concrete classes (even super
-     * classes) as it is more strongly typed.
-     * 
-     * Unfortunately, in TypeScript, abstract classes do not have constructors
-     * which are accessible in the type system (because abstract classes do not
-     * satisfy `{ new (...args: any[]) => any }` since they cannot be `new`-ed
-     * without being extended). This means we have no way of knowing what the
-     * appropriate parameter types are for a given abstract class. Instead, this
-     * function acts as an alternative to `ctor.new()` except that the user must
-     * explicitly provide the `Params` type, rather than automatically inferring
-     * it from `Clazz`.
-     */
-    public static newAbstract<
-        Clazz extends AbstractClass,
-        Params extends unknown[],
-    >(clazz: Clazz, ...params: Params): ctor<AbstractInstance<Clazz>> {
-        // Must hard cast to a constructor type here knowing that `ctor` will do
-        // the right thing, even though an abstract class cannot be `new`-ed.
-        const abstractClazz =
-                clazz as unknown as ConstructorOf<AbstractInstance<Clazz>>;
-        return new ctor<AbstractInstance<Clazz>>(undefined, abstractClazz, ...params);
-    }
-
     public extend<ChildClass extends ConstructorOf<T>>(
         childClass: ChildClass,
         ...params: ConstructorParameters<typeof childClass>
@@ -316,4 +291,7 @@ type AbstractClass = Function & { prototype: unknown };
 type AbstractInstance<T extends AbstractClass> = T['prototype'];
 
 // Short hand for a constructor which yields type T.
-type ConstructorOf<T> = { new (...args: any[]): T };
+type ConstructorOf<T> =
+    | { new (...args: any[]): T }
+    | (abstract new (...args: any[]) => T)
+;
